@@ -111,4 +111,41 @@ describe('Favorites API', () => {
       .send({ bookId: '1' });
     expect(res.statusCode).toBe(401);
   });
+
+  // generated-by-copilot: Tests for removing books from favorites
+  it('POST /api/favorites/:bookId/remove should remove a book from favorites', async () => {
+    const token = getToken('sandra');
+    const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+    const sandra = users.find(u => u.username === 'sandra');
+    const favoriteBookId = sandra.favorites[0];
+    if (!favoriteBookId) return; // skip if no favorites
+    const res = await request(app)
+      .post(`/api/favorites/${favoriteBookId}/remove`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toMatch(/removed/);
+  });
+
+  it('POST /api/favorites/:bookId/remove should work even if book is not in favorites', async () => {
+    const token = getToken('sandra');
+    const res = await request(app)
+      .post('/api/favorites/nonexistent-book-id/remove')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toMatch(/removed/);
+  });
+
+  it('POST /api/favorites/:bookId/remove should fail without auth', async () => {
+    const res = await request(app)
+      .post('/api/favorites/1/remove');
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('POST /api/favorites/:bookId/remove should 404 for non-existent user', async () => {
+    const token = getToken('nouser');
+    const res = await request(app)
+      .post('/api/favorites/1/remove')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(404);
+  });
 });

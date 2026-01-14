@@ -47,4 +47,23 @@ describe('Book Favorites App', () => {
     cy.visit('http://localhost:5173/books');
     cy.url().should('eq', 'http://localhost:5173/');
   });
+
+  // generated-by-copilot: Test removing a book from favorites
+  it('should allow removing a book from favorites', () => {
+    // Login first
+    cy.contains('Login').click();
+    cy.get('input[name="username"]').type(user.username);
+    cy.get('input[name="password"]').type(user.password);
+    cy.get('button#login').click();
+    // Navigate to favorites
+    cy.get('a#favorites-link').click();
+    cy.get('h2').contains('My Favorite Books').should('exist');
+    // Get initial count of favorites
+    cy.get('ul li').its('length').then((initialCount) => {
+      // Remove the first favorite book
+      cy.get('button').contains('Remove').first().click();
+      // Verify the book was removed by checking the count decreased
+      cy.get('ul li').should('have.length', initialCount - 1);
+    });
+  });
 });
