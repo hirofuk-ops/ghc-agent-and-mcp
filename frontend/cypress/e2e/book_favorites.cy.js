@@ -58,11 +58,12 @@ describe('Book Favorites App', () => {
     // Navigate to favorites
     cy.get('a#favorites-link').click();
     cy.get('h2').contains('My Favorite Books').should('exist');
-    // Remove the first favorite book
-    cy.get('button').contains('Remove').first().click();
-    // Wait a bit for the UI to update
-    cy.wait(1000);
-    // Verify the book was removed (checking that we don't have the same number of books)
-    cy.get('ul li').should('have.length.at.most', 10);
+    // Get initial count of favorites
+    cy.get('ul li').its('length').then((initialCount) => {
+      // Remove the first favorite book
+      cy.get('button').contains('Remove').first().click();
+      // Verify the book was removed by checking the count decreased
+      cy.get('ul li').should('have.length', initialCount - 1);
+    });
   });
 });
